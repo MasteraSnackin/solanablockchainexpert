@@ -28,7 +28,7 @@ export const GameControls = ({
   const { t } = useTranslation();
 
   return (
-    <div className="border-t p-6 bg-white rounded-b-lg shadow-inner">
+    <div className="border-t p-6 bg-white dark:bg-gray-800 rounded-b-lg shadow-inner">
       <Tabs defaultValue="choices" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="choices" className="text-sm">{t('Quick Choices')}</TabsTrigger>
@@ -41,16 +41,21 @@ export const GameControls = ({
             <div className="space-y-4">
               <RadioGroup value={selectedOption} onValueChange={setSelectedOption} className="space-y-3">
                 {options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <RadioGroupItem value={option} id={`option-${index}`} />
-                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">{option}</Label>
+                    <Label 
+                      htmlFor={`option-${index}`} 
+                      className="flex-1 cursor-pointer text-gray-900 dark:text-gray-100"
+                    >
+                      {option}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
               <Button 
                 onClick={() => handleSendMessage("")} 
                 disabled={!selectedOption || isTyping}
-                className="w-full bg-purple-600 hover:bg-purple-700"
+                className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
               >
                 {t('Choose Action')}
               </Button>
