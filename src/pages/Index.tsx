@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useSpeech } from "@/hooks/useSpeech";
 import { ChatContainer } from "@/components/ChatContainer";
@@ -9,14 +9,26 @@ import { useGameState } from "@/hooks/useGameState";
 import { useVoiceControl } from "@/hooks/useVoiceControl";
 import { useMessageHandler } from "@/hooks/useMessageHandler";
 import { Button } from "@/components/ui/button";
-import { Copy, RefreshCw } from "lucide-react";
+import { Copy, RefreshCw, Download, Moon, Sun, Languages } from "lucide-react";
+import { useTranslation } from 'react-i18next';
+import '../i18n/config';
 
 const Index = () => {
   const { toast } = useToast();
   const { speak, stopSpeaking, setVoice, currentVoice } = useSpeech();
   const { messages, setMessages, isTyping, setIsTyping } = useGameState();
   const [isSpeaking, setIsSpeaking] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { t, i18n } = useTranslation();
   
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   const { selectedOption, setSelectedOption, handleSendMessage } = useMessageHandler(
     isSpeaking,
     speak,
@@ -56,11 +68,41 @@ const Index = () => {
     });
   };
 
+  const exportChat = () => {
+    const chatLogs = messages
+      .map(msg => `${msg.isBot ? "Game Master" : "Player"}: ${msg.text}`)
+      .join("\n\n");
+    
+    const blob = new Blob([chatLogs], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Chat exported!",
+      description: "The chat history has been downloaded as a text file.",
+    });
+  };
+
   const restartChat = () => {
     setMessages([{ text: messages[0].text, isBot: true }]);
     toast({
       title: "Chat Restarted",
       description: "The chat has been reset to the beginning.",
+    });
+  };
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'es' : 'en';
+    i18n.changeLanguage(newLang);
+    toast({
+      title: "Language Changed",
+      description: `Interface language changed to ${newLang === 'en' ? 'English' : 'Spanish'}`,
     });
   };
 
@@ -71,8 +113,8 @@ const Index = () => {
   const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="container mx-auto px-4 py-2">
           <Header
             isSpeaking={isSpeaking}
@@ -84,12 +126,12 @@ const Index = () => {
       </div>
       
       <main className="flex-1 container mx-auto px-4 py-6 flex gap-6">
-        <div className="flex-1 bg-white rounded-lg shadow-lg flex flex-col">
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatContainer messages={messages} isTyping={isTyping} />
           </div>
           
-          <div className="border-t p-4 flex items-center gap-4">
+          <div className="border-t dark:border-gray-700 p-4 flex items-center gap-4">
             <div className="flex-1">
               <GameControls
                 options={options}
@@ -109,7 +151,16 @@ const Index = () => {
                 onClick={copyChatlogs}
               >
                 <Copy className="w-4 h-4" />
-                Copy Chat Logs
+                {t('Copy Chat Logs')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 shrink-0"
+                onClick={exportChat}
+              >
+                <Download className="w-4 h-4" />
+                {t('Export Chat')}
               </Button>
               <Button
                 variant="outline"
@@ -118,13 +169,31 @@ const Index = () => {
                 onClick={restartChat}
               >
                 <RefreshCw className="w-4 h-4" />
-                Restart Chat
+                {t('Restart Chat')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 shrink-0"
+                onClick={() => setIsDarkMode(!isDarkMode)}
+              >
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {t('Dark Mode')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 shrink-0"
+                onClick={toggleLanguage}
+              >
+                <Languages className="w-4 h-4" />
+                {t('Language')}
               </Button>
             </div>
           </div>
         </div>
         
-        <div className="w-[512px] bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
+        <div className="w-[512px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-y-auto">
           {lastBotMessage && <SceneImage message={lastBotMessage} />}
         </div>
       </main>
