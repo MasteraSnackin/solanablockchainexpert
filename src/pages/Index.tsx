@@ -3,7 +3,7 @@ import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { useToast } from "@/components/ui/use-toast";
-import Groq from "groq";
+import { Groq } from "groq-sdk";
 
 interface Message {
   text: string;
@@ -23,7 +23,7 @@ const Index = () => {
     setIsTyping(true);
     
     try {
-      const groq = Groq({
+      const client = new Groq({
         apiKey: import.meta.env.VITE_GROQ_API_KEY,
       });
 
@@ -32,7 +32,7 @@ const Index = () => {
         content: msg.text,
       }));
 
-      const completion = await groq.chat.completions.create({
+      const completion = await client.chat.completions.create({
         messages: [
           ...chatHistory,
           { role: "user", content: userMessage }
