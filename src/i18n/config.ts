@@ -16,7 +16,7 @@ const resources = {
   it: { translation: it }
 };
 
-i18n
+void i18n
   .use(initReactI18next)
   .init({
     resources,
