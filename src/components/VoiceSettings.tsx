@@ -25,7 +25,7 @@ interface VoiceSettingsProps {
   volume?: number;
 }
 
-const VoiceSettings = ({ 
+export const VoiceSettings = ({ 
   onVoiceChange, 
   currentVoice,
   onSpeedChange = () => {},
@@ -116,5 +116,3 @@ const VoiceSettings = ({
     </div>
   );
 };
-
-export default VoiceSettings;

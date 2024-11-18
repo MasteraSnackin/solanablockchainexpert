@@ -10,9 +10,7 @@ import { useVoiceControl } from "@/hooks/useVoiceControl";
 import { useMessageHandler } from "@/hooks/useMessageHandler";
 import { VoiceSettings } from "@/components/VoiceSettings";
 import { useTranslation } from 'react-i18next';
-import { GameActions } from "./GameActions";
 import { GameHeader } from "./GameHeader";
-import { GameSidebar } from "./GameSidebar";
 
 const Index = () => {
   const { toast } = useToast();
