@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
-import { TypingIndicator } from "@/components/TypingIndicator";
 import { useToast } from "@/components/ui/use-toast";
 import { Groq } from "groq-sdk";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useSpeech } from "@/hooks/useSpeech";
 import VoiceSettings from "@/components/VoiceSettings";
+import { ChatContainer } from "@/components/ChatContainer";
+import { SceneImage } from "@/components/SceneImage";
 
 interface Message {
   text: string;
@@ -215,68 +215,65 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            message={message.text}
-            isBot={message.isBot}
-          />
-        ))}
-        {isTyping && <TypingIndicator />}
-      </div>
-
-      <div className="border-t p-4 space-y-4">
-        <Tabs defaultValue="choices" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="choices">Quick Choices</TabsTrigger>
-            <TabsTrigger value="custom">Custom Response</TabsTrigger>
-            <TabsTrigger value="voice">Voice Input</TabsTrigger>
-          </TabsList>
-          <TabsContent value="choices">
-            {options.length > 0 && (
-              <div className="space-y-4">
-                <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
-                  {options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option} id={`option-${index}`} />
-                      <Label htmlFor={`option-${index}`}>{option}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                <Button 
-                  onClick={() => handleSendMessage("")} 
-                  disabled={!selectedOption || isTyping}
-                  className="w-full"
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 flex flex-col">
+          <ChatContainer messages={messages} isTyping={isTyping} />
+          <div className="border-t p-4 space-y-4">
+            <Tabs defaultValue="choices" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="choices">Quick Choices</TabsTrigger>
+                <TabsTrigger value="custom">Custom Response</TabsTrigger>
+                <TabsTrigger value="voice">Voice Input</TabsTrigger>
+              </TabsList>
+              <TabsContent value="choices">
+                {options.length > 0 && (
+                  <div className="space-y-4">
+                    <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
+                      {options.map((option, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <RadioGroupItem value={option} id={`option-${index}`} />
+                          <Label htmlFor={`option-${index}`}>{option}</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    <Button 
+                      onClick={() => handleSendMessage("")} 
+                      disabled={!selectedOption || isTyping}
+                      className="w-full"
+                    >
+                      Choose Action
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="custom">
+                <ChatInput onSend={handleSendMessage} disabled={isTyping} />
+              </TabsContent>
+              <TabsContent value="voice" className="flex justify-center">
+                <Button
+                  onClick={toggleVoiceRecognition}
+                  variant={isListening ? "destructive" : "default"}
+                  className="w-full flex items-center gap-2"
                 >
-                  Choose Action
+                  {isListening ? (
+                    <>
+                      <MicOff className="h-4 w-4" />
+                      Stop Recording
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-4 w-4" />
+                      Start Recording
+                    </>
+                  )}
                 </Button>
-              </div>
-            )}
-          </TabsContent>
-          <TabsContent value="custom">
-            <ChatInput onSend={handleSendMessage} disabled={isTyping} />
-          </TabsContent>
-          <TabsContent value="voice" className="flex justify-center">
-            <Button
-              onClick={toggleVoiceRecognition}
-              variant={isListening ? "destructive" : "default"}
-              className="w-full flex items-center gap-2"
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="h-4 w-4" />
-                  Stop Recording
-                </>
-              ) : (
-                <>
-                  <Mic className="h-4 w-4" />
-                  Start Recording
-                </>
-              )}
-            </Button>
-          </TabsContent>
-        </Tabs>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+        <div className="w-[512px] border-l p-4 overflow-y-auto">
+          {lastBotMessage && <SceneImage message={lastBotMessage} />}
+        </div>
       </div>
     </div>
   );
