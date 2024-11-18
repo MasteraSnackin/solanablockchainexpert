@@ -4,6 +4,9 @@ import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { useToast } from "@/components/ui/use-toast";
 import { Groq } from "groq-sdk";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 interface Message {
   text: string;
@@ -34,6 +37,7 @@ const Index = () => {
     { text: INITIAL_MESSAGE, isBot: true },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const { toast } = useToast();
 
   const generateBotResponse = async (userMessage: string) => {
@@ -86,11 +90,28 @@ const Index = () => {
     }
   };
 
-  const handleSendMessage = async (message: string) => {
-    setMessages((prev) => [...prev, { text: message, isBot: false }]);
+  const extractOptions = (message: string) => {
+    const lines = message.split('\n');
+    const options: string[] = [];
+    
+    for (const line of lines) {
+      const match = line.match(/^\d+\.\s(.+)$/);
+      if (match) {
+        options.push(match[1].trim());
+      }
+    }
+    
+    return options;
+  };
+
+  const handleSendMessage = async () => {
+    if (!selectedOption) return;
+    
+    setMessages((prev) => [...prev, { text: selectedOption, isBot: false }]);
+    setSelectedOption("");
 
     try {
-      const botResponse = await generateBotResponse(message);
+      const botResponse = await generateBotResponse(selectedOption);
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
     } catch (error) {
       toast({
@@ -100,6 +121,9 @@ const Index = () => {
       });
     }
   };
+
+  const lastBotMessage = messages[messages.length - 1]?.isBot ? messages[messages.length - 1].text : null;
+  const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
   return (
     <div className="flex h-screen flex-col bg-white">
@@ -118,7 +142,25 @@ const Index = () => {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <ChatInput onSend={handleSendMessage} disabled={isTyping} />
+      <div className="border-t p-4 space-y-4">
+        {options.length > 0 && (
+          <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
+            {options.map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`option-${index}`} />
+                <Label htmlFor={`option-${index}`}>{option}</Label>
+              </div>
+            ))}
+          </RadioGroup>
+        )}
+        <Button 
+          onClick={handleSendMessage} 
+          disabled={!selectedOption || isTyping}
+          className="w-full"
+        >
+          Choose Action
+        </Button>
+      </div>
     </div>
   );
 };
