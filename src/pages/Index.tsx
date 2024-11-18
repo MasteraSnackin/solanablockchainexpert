@@ -30,6 +30,7 @@ const Index = () => {
 
       const client = new Groq({
         apiKey,
+        dangerouslyAllowBrowser: true // Add this option to allow browser usage
       });
 
       console.log("Sending request to Groq API...");
