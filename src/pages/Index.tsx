@@ -23,7 +23,7 @@ const Index = () => {
     setIsTyping(true);
     
     try {
-      const groq = new Groq({
+      const groq = Groq({
         apiKey: import.meta.env.VITE_GROQ_API_KEY,
       });
 
