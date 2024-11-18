@@ -22,6 +22,16 @@ const translations = {
       'Welcome! I am your Solana blockchain expert assistant. How can I help you today?': 'Welcome! I am your Solana blockchain expert assistant. How can I help you today?',
       'Chat Restarted': 'Chat Restarted',
       'The conversation has been reset': 'The conversation has been reset',
+      'Quick Choices': 'Quick Choices',
+      'Custom Response': 'Custom Response',
+      'Voice Input': 'Voice Input',
+      'Choose Action': 'Choose Action',
+      'Start Recording': 'Start Recording',
+      'Stop Recording': 'Stop Recording',
+      'Success': 'Success',
+      'Chat log copied to clipboard': 'Chat log copied to clipboard',
+      'Failed to copy chat log': 'Failed to copy chat log',
+      'Chat log exported': 'Chat log exported',
     },
   },
   es: {
@@ -180,13 +190,18 @@ const translations = {
   },
 };
 
-i18n.use(initReactI18next).init({
-  resources: translations,
-  lng: 'en',
-  fallbackLng: 'en',
-  interpolation: {
-    escapeValue: false,
-  },
-});
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: translations,
+    lng: 'en',
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false,
+    },
+    react: {
+      useSuspense: false, // This prevents issues with Suspense
+    },
+  });
 
 export default i18n;
