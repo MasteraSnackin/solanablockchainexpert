@@ -1,5 +1,6 @@
+import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 import { Groq } from "groq-sdk";
-import { Toast } from "@/components/ui/use-toast";
 
 const SYSTEM_PROMPT = `You are a Game Master running a text-based adventure game. Your role is to:
 1. Create an immersive narrative experience
@@ -29,7 +30,9 @@ interface UseGameLogicProps {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>;
   speak: (text: string) => void;
-  toast: Toast;
+  toast: typeof toast;
+  messages: Message[];
+  isSpeaking: boolean;
 }
 
 interface Message {
@@ -37,7 +40,9 @@ interface Message {
   isBot: boolean;
 }
 
-export const useGameLogic = ({ setMessages, setIsTyping, speak, toast }: UseGameLogicProps) => {
+export const useGameLogic = ({ setMessages, setIsTyping, speak, toast, messages, isSpeaking }: UseGameLogicProps) => {
+  const [selectedOption, setSelectedOption] = useState("");
+
   const generateBotResponse = async (userMessage: string) => {
     setIsTyping(true);
     
@@ -67,7 +72,6 @@ export const useGameLogic = ({ setMessages, setIsTyping, speak, toast }: UseGame
         ],
         model: "mixtral-8x7b-32768",
         temperature: 0,
-        top_k: 10,
         top_p: 0.5,
         max_tokens: 1024,
       });

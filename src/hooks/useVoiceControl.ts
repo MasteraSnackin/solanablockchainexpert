@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 interface UseVoiceControlProps {
   handleSendMessage: (message: string) => void;
-  toast: Toast;
+  toast: typeof toast;
 }
 
 export const useVoiceControl = ({ handleSendMessage, toast }: UseVoiceControlProps) => {
