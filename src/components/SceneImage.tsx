@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Image } from "lucide-react";
+import { Image, AlertCircle } from "lucide-react";
 import { useToast } from "./ui/use-toast";
+import { Alert, AlertDescription } from "./ui/alert";
 
 interface SceneImageProps {
   message: string;
@@ -10,14 +11,32 @@ interface SceneImageProps {
 export const SceneImage = ({ message }: SceneImageProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isComfyUIError, setIsComfyUIError] = useState(false);
   const { toast } = useToast();
+
+  const checkComfyUIConnection = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8188/system_stats");
+      return response.ok;
+    } catch {
+      return false;
+    }
+  };
 
   const generateImage = async () => {
     setIsLoading(true);
-    console.log("Generating image for prompt:", message);
+    setIsComfyUIError(false);
     
     try {
-      // ComfyUI runs locally by default on port 8188
+      // First check if ComfyUI is running
+      const isComfyUIRunning = await checkComfyUIConnection();
+      if (!isComfyUIRunning) {
+        setIsComfyUIError(true);
+        throw new Error("ComfyUI is not running. Please start ComfyUI locally on port 8188.");
+      }
+
+      console.log("Generating image for prompt:", message);
+      
       const response = await fetch("http://127.0.0.1:8188/prompt", {
         method: "POST",
         headers: {
@@ -85,9 +104,7 @@ export const SceneImage = ({ message }: SceneImageProps) => {
 
       const data = await response.json();
       
-      // ComfyUI returns a prompt ID that we need to use to get the actual image
       if (data.prompt_id) {
-        // Poll for the image result
         const checkResult = async () => {
           const historyResponse = await fetch(`http://127.0.0.1:8188/history/${data.prompt_id}`);
           const historyData = await historyResponse.json();
@@ -97,7 +114,6 @@ export const SceneImage = ({ message }: SceneImageProps) => {
             setImageUrl(`http://127.0.0.1:8188/view?filename=${imageName}`);
             setIsLoading(false);
           } else {
-            // Check again in 1 second
             setTimeout(checkResult, 1000);
           }
         };
@@ -108,9 +124,7 @@ export const SceneImage = ({ message }: SceneImageProps) => {
       console.error("Image generation error:", error);
       toast({
         title: "Error Generating Image",
-        description: error instanceof Error 
-          ? `Failed to generate image: ${error.message}` 
-          : "Failed to generate image. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate image. Please try again.",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -118,7 +132,21 @@ export const SceneImage = ({ message }: SceneImageProps) => {
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-white shadow-sm">
+    <div className="p-4 border rounded-lg bg-white shadow-sm space-y-4">
+      {isComfyUIError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            ComfyUI is not running. Please make sure to:
+            <ol className="list-decimal ml-4 mt-2">
+              <li>Install ComfyUI locally</li>
+              <li>Start ComfyUI server on port 8188</li>
+              <li>Ensure the SD XL model is available</li>
+            </ol>
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {imageUrl ? (
         <img
           src={imageUrl}
