@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Mic, MicOff } from "lucide-react";
 
 interface Message {
   text: string;
@@ -39,6 +40,7 @@ const Index = () => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
+  const [isListening, setIsListening] = useState(false);
   const { toast } = useToast();
 
   const generateBotResponse = async (userMessage: string) => {
@@ -124,6 +126,53 @@ const Index = () => {
     }
   };
 
+  const toggleVoiceRecognition = () => {
+    if (!isListening) {
+      if (!('webkitSpeechRecognition' in window)) {
+        toast({
+          title: "Voice Input Error",
+          description: "Voice recognition is not supported in your browser. Please use Chrome.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const recognition = new (window as any).webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        console.log("Voice recognition started");
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        console.log("Voice input received:", transcript);
+        handleSendMessage(transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error("Voice recognition error:", event.error);
+        setIsListening(false);
+        toast({
+          title: "Voice Input Error",
+          description: "There was an error with voice recognition. Please try again.",
+          variant: "destructive",
+        });
+      };
+
+      recognition.onend = () => {
+        console.log("Voice recognition ended");
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } else {
+      setIsListening(false);
+    }
+  };
+
   const lastBotMessage = messages[messages.length - 1]?.isBot ? messages[messages.length - 1].text : null;
   const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
@@ -146,9 +195,10 @@ const Index = () => {
 
       <div className="border-t p-4 space-y-4">
         <Tabs defaultValue="choices" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="choices">Quick Choices</TabsTrigger>
             <TabsTrigger value="custom">Custom Response</TabsTrigger>
+            <TabsTrigger value="voice">Voice Input</TabsTrigger>
           </TabsList>
           <TabsContent value="choices">
             {options.length > 0 && (
@@ -173,6 +223,25 @@ const Index = () => {
           </TabsContent>
           <TabsContent value="custom">
             <ChatInput onSend={handleSendMessage} disabled={isTyping} />
+          </TabsContent>
+          <TabsContent value="voice" className="flex justify-center">
+            <Button
+              onClick={toggleVoiceRecognition}
+              variant={isListening ? "destructive" : "default"}
+              className="w-full flex items-center gap-2"
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="h-4 w-4" />
+                  Stop Recording
+                </>
+              ) : (
+                <>
+                  <Mic className="h-4 w-4" />
+                  Start Recording
+                </>
+              )}
+            </Button>
           </TabsContent>
         </Tabs>
       </div>
