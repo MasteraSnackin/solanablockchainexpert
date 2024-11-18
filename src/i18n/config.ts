@@ -20,6 +20,33 @@ const resources = {
       'Language': 'Idioma',
     },
   },
+  fr: {
+    translation: {
+      'Copy Chat Logs': 'Copier les journaux',
+      'Restart Chat': 'Redémarrer le chat',
+      'Export Chat': 'Exporter le chat',
+      'Dark Mode': 'Mode sombre',
+      'Language': 'Langue',
+    },
+  },
+  de: {
+    translation: {
+      'Copy Chat Logs': 'Chat-Protokolle kopieren',
+      'Restart Chat': 'Chat neustarten',
+      'Export Chat': 'Chat exportieren',
+      'Dark Mode': 'Dunkelmodus',
+      'Language': 'Sprache',
+    },
+  },
+  it: {
+    translation: {
+      'Copy Chat Logs': 'Copia log chat',
+      'Restart Chat': 'Riavvia chat',
+      'Export Chat': 'Esporta chat',
+      'Dark Mode': 'Modalità scura',
+      'Language': 'Lingua',
+    },
+  },
 };
 
 i18n

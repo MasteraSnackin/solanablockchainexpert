@@ -9,8 +9,9 @@ import { useGameState } from "@/hooks/useGameState";
 import { useVoiceControl } from "@/hooks/useVoiceControl";
 import { useMessageHandler } from "@/hooks/useMessageHandler";
 import { Button } from "@/components/ui/button";
-import { Copy, RefreshCw, Download, Moon, Sun, Languages } from "lucide-react";
+import { Copy, RefreshCw, Download, Moon, Sun } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from "@/components/LanguageSelector";
 import '../i18n/config';
 
 const Index = () => {
@@ -19,7 +20,7 @@ const Index = () => {
   const { messages, setMessages, isTyping, setIsTyping } = useGameState();
   const [isSpeaking, setIsSpeaking] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   
   useEffect(() => {
     if (isDarkMode) {
@@ -97,15 +98,6 @@ const Index = () => {
     });
   };
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'es' : 'en';
-    i18n.changeLanguage(newLang);
-    toast({
-      title: "Language Changed",
-      description: `Interface language changed to ${newLang === 'en' ? 'English' : 'Spanish'}`,
-    });
-  };
-
   const lastBotMessage = messages[messages.length - 1]?.isBot 
     ? messages[messages.length - 1].text 
     : null;
@@ -180,15 +172,7 @@ const Index = () => {
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 {t('Dark Mode')}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 shrink-0"
-                onClick={toggleLanguage}
-              >
-                <Languages className="w-4 h-4" />
-                {t('Language')}
-              </Button>
+              <LanguageSelector />
             </div>
           </div>
         </div>
