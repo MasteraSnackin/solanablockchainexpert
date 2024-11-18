@@ -7,6 +7,7 @@ import { Groq } from "groq-sdk";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Message {
   text: string;
@@ -104,14 +105,15 @@ const Index = () => {
     return options;
   };
 
-  const handleSendMessage = async () => {
-    if (!selectedOption) return;
+  const handleSendMessage = async (message: string) => {
+    const messageToSend = selectedOption || message;
+    if (!messageToSend) return;
     
-    setMessages((prev) => [...prev, { text: selectedOption, isBot: false }]);
+    setMessages((prev) => [...prev, { text: messageToSend, isBot: false }]);
     setSelectedOption("");
 
     try {
-      const botResponse = await generateBotResponse(selectedOption);
+      const botResponse = await generateBotResponse(messageToSend);
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
     } catch (error) {
       toast({
@@ -143,23 +145,36 @@ const Index = () => {
       </div>
 
       <div className="border-t p-4 space-y-4">
-        {options.length > 0 && (
-          <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
-            {options.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`option-${index}`} />
-                <Label htmlFor={`option-${index}`}>{option}</Label>
+        <Tabs defaultValue="choices" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="choices">Quick Choices</TabsTrigger>
+            <TabsTrigger value="custom">Custom Response</TabsTrigger>
+          </TabsList>
+          <TabsContent value="choices">
+            {options.length > 0 && (
+              <div className="space-y-4">
+                <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
+                  {options.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option} id={`option-${index}`} />
+                      <Label htmlFor={`option-${index}`}>{option}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+                <Button 
+                  onClick={() => handleSendMessage("")} 
+                  disabled={!selectedOption || isTyping}
+                  className="w-full"
+                >
+                  Choose Action
+                </Button>
               </div>
-            ))}
-          </RadioGroup>
-        )}
-        <Button 
-          onClick={handleSendMessage} 
-          disabled={!selectedOption || isTyping}
-          className="w-full"
-        >
-          Choose Action
-        </Button>
+            )}
+          </TabsContent>
+          <TabsContent value="custom">
+            <ChatInput onSend={handleSendMessage} disabled={isTyping} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
