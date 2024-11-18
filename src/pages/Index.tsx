@@ -43,7 +43,7 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(true); // Changed to true by default
   const { toast } = useToast();
   const { speak, stopSpeaking, setVoice, currentVoice } = useSpeech();
 
@@ -280,3 +280,4 @@ const Index = () => {
 };
 
 export default Index;
+

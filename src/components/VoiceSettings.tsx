@@ -27,7 +27,17 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
         name: `${voice.name} (${voice.lang})`,
         voice: voice,
       }));
-      console.log("Available voices loaded:", voiceOptions);
+      
+      // Set default voice to Google UK English Female if available
+      const defaultVoice = availableVoices.find(
+        (voice) => voice.name === "Google UK English Female" && voice.lang === "en-GB"
+      );
+      
+      if (defaultVoice && !currentVoice) {
+        console.log("Setting default voice to Google UK English Female");
+        onVoiceChange(defaultVoice);
+      }
+      
       setVoices(voiceOptions);
     };
 
@@ -40,7 +50,7 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
     };
-  }, []);
+  }, [onVoiceChange, currentVoice]);
 
   return (
     <Select
