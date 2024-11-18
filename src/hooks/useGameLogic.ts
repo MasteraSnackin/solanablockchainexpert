@@ -2,22 +2,15 @@ import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Groq } from "groq-sdk";
 
-const SYSTEM_PROMPT = `You are a Game Master running a text-based adventure game. Your role is to:
-1. Create an immersive narrative experience
-2. Always present exactly 4 numbered choices after each response
-3. Respond to the player's choices with engaging descriptions
-4. Keep track of the story context
-5. Include elements of mystery, challenge, and discovery
-6. Make choices have meaningful consequences
+const SYSTEM_PROMPT = `You are SolanaBot, an advanced AI assistant specialized in the Solana blockchain ecosystem. Your role is to:
+1. Provide accurate, technical information about Solana
+2. Explain complex blockchain concepts clearly
+3. Guide users through Solana development
+4. Share updates about the Solana ecosystem
+5. Discuss Solana's architecture and features
+6. Help with best practices and security
 
-Format your responses like this:
-[Narrative description of what happens based on their choice]
-
-Choose your next action:
-1. [Option 1]
-2. [Option 2]
-3. [Option 3]
-4. [Option 4]
+Keep responses focused on Solana-related topics and maintain a professional, helpful tone.
 
 Parameters:
 temperature: 0
@@ -57,7 +50,7 @@ export const useGameLogic = ({ setMessages, setIsTyping, speak, toast, messages,
         dangerouslyAllowBrowser: true
       });
 
-      console.log("Sending request to Groq API for game response...");
+      console.log("Sending request to Groq API for Solana expertise...");
       
       const chatHistory = messages.map(msg => ({
         role: msg.isBot ? "assistant" as const : "user" as const,
@@ -76,7 +69,7 @@ export const useGameLogic = ({ setMessages, setIsTyping, speak, toast, messages,
         max_tokens: 1024,
       });
 
-      console.log("Received game response from Groq API:", completion);
+      console.log("Received Solana expert response from Groq API:", completion);
 
       if (!completion.choices?.[0]?.message?.content) {
         throw new Error("Invalid response format from Groq API");
@@ -84,11 +77,11 @@ export const useGameLogic = ({ setMessages, setIsTyping, speak, toast, messages,
 
       return completion.choices[0].message.content;
     } catch (error) {
-      console.error("Game Master Error:", error);
+      console.error("Solana Expert Error:", error);
       if (error instanceof Error) {
         throw new Error(`Failed to get response: ${error.message}`);
       }
-      throw new Error("Failed to get response from Game Master");
+      throw new Error("Failed to get response from Solana Expert");
     } finally {
       setIsTyping(false);
     }
@@ -110,7 +103,7 @@ export const useGameLogic = ({ setMessages, setIsTyping, speak, toast, messages,
       }
     } catch (error) {
       toast({
-        title: "Game Master Error",
+        title: "Solana Expert Error",
         description: error instanceof Error ? error.message : "Failed to get response. Please try again.",
         variant: "destructive",
       });
