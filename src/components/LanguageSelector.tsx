@@ -7,7 +7,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Languages } from "lucide-react";
 import { useTranslation } from 'react-i18next';
-import { useCallback } from 'react';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -20,10 +19,6 @@ const languages = [
 
 export const LanguageSelector = () => {
   const { t, i18n } = useTranslation();
-
-  const handleLanguageChange = useCallback((langCode: string) => {
-    void i18n.changeLanguage(langCode);
-  }, [i18n]);
 
   return (
     <DropdownMenu>
@@ -41,7 +36,7 @@ export const LanguageSelector = () => {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => handleLanguageChange(lang.code)}
+            onClick={() => i18n.changeLanguage(lang.code)}
           >
             {lang.name}
           </DropdownMenuItem>
