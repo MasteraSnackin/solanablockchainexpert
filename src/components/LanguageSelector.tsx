@@ -17,6 +17,8 @@ const languages = [
   { code: 'de', name: 'Deutsch' },
   { code: 'it', name: 'Italiano' },
   { code: 'zh', name: '中文' },
+  { code: 'fi', name: 'Suomi' },
+  { code: 'sv', name: 'Svenska' },
 ];
 
 export const LanguageSelector = () => {
