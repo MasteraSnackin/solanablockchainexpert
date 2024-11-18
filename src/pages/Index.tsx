@@ -18,7 +18,9 @@ const Index = () => {
     setMessages, 
     setIsTyping, 
     speak, 
-    toast 
+    toast,
+    messages,
+    isSpeaking 
   });
   const { isListening, toggleVoiceRecognition } = useVoiceControl({ handleSendMessage, toast });
   const [isSpeaking, setIsSpeaking] = useState(true);
