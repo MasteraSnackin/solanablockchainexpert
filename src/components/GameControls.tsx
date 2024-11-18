@@ -4,6 +4,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { Mic, MicOff } from "lucide-react";
 import { ChatInput } from "./ChatInput";
+import { useTranslation } from 'react-i18next';
 
 interface GameControlsProps {
   options: string[];
@@ -24,13 +25,15 @@ export const GameControls = ({
   isListening,
   toggleVoiceRecognition,
 }: GameControlsProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="border-t p-6 bg-white rounded-b-lg shadow-inner">
       <Tabs defaultValue="choices" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="choices" className="text-sm">Quick Choices</TabsTrigger>
-          <TabsTrigger value="custom" className="text-sm">Custom Response</TabsTrigger>
-          <TabsTrigger value="voice" className="text-sm">Voice Input</TabsTrigger>
+          <TabsTrigger value="choices" className="text-sm">{t('Quick Choices')}</TabsTrigger>
+          <TabsTrigger value="custom" className="text-sm">{t('Custom Response')}</TabsTrigger>
+          <TabsTrigger value="voice" className="text-sm">{t('Voice Input')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="choices" className="space-y-4">
@@ -49,7 +52,7 @@ export const GameControls = ({
                 disabled={!selectedOption || isTyping}
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
-                Choose Action
+                {t('Choose Action')}
               </Button>
             </div>
           )}
@@ -68,12 +71,12 @@ export const GameControls = ({
             {isListening ? (
               <>
                 <MicOff className="h-5 w-5" />
-                Stop Recording
+                {t('Stop Recording')}
               </>
             ) : (
               <>
                 <Mic className="h-5 w-5" />
-                Start Recording
+                {t('Start Recording')}
               </>
             )}
           </Button>

@@ -2,6 +2,7 @@ import { Send } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -10,6 +11,7 @@ interface ChatInputProps {
 
 export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   const [message, setMessage] = useState("");
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,7 @@ export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
       <Input
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type a message..."
+        placeholder={t('Type a message...')}
         className="flex-1"
         disabled={disabled}
       />
