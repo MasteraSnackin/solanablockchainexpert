@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useSpeech } from "@/hooks/useSpeech";
+import VoiceSettings from "@/components/VoiceSettings";
 
 interface Message {
   text: string;
@@ -44,7 +45,7 @@ const Index = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { toast } = useToast();
-  const { speak, stopSpeaking } = useSpeech();
+  const { speak, stopSpeaking, setVoice, currentVoice } = useSpeech();
 
   const generateBotResponse = async (userMessage: string) => {
     setIsTyping(true);
@@ -195,18 +196,23 @@ const Index = () => {
     <div className="flex h-screen flex-col bg-white">
       <header className="border-b p-4 flex justify-between items-center">
         <h1 className="text-xl font-semibold text-gray-800">Text Adventure Game</h1>
-        <Button
-          onClick={toggleSpeech}
-          variant="ghost"
-          size="icon"
-          className="ml-2"
-        >
-          {isSpeaking ? (
-            <Volume2 className="h-4 w-4" />
-          ) : (
-            <VolumeX className="h-4 w-4" />
+        <div className="flex items-center gap-4">
+          {isSpeaking && (
+            <VoiceSettings onVoiceChange={setVoice} currentVoice={currentVoice} />
           )}
-        </Button>
+          <Button
+            onClick={toggleSpeech}
+            variant="ghost"
+            size="icon"
+            className="ml-2"
+          >
+            {isSpeaking ? (
+              <Volume2 className="h-4 w-4" />
+            ) : (
+              <VolumeX className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
