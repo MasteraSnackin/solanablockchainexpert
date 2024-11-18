@@ -14,6 +14,7 @@ const Index = () => {
   const { toast } = useToast();
   const { speak, stopSpeaking, setVoice, currentVoice } = useSpeech();
   const { messages, setMessages, isTyping, setIsTyping } = useGameState();
+  const [isSpeaking, setIsSpeaking] = useState(true);
   const { selectedOption, setSelectedOption, handleSendMessage } = useGameLogic({ 
     setMessages, 
     setIsTyping, 
@@ -23,7 +24,6 @@ const Index = () => {
     isSpeaking 
   });
   const { isListening, toggleVoiceRecognition } = useVoiceControl({ handleSendMessage, toast });
-  const [isSpeaking, setIsSpeaking] = useState(true);
 
   const toggleSpeech = () => {
     if (isSpeaking) {
