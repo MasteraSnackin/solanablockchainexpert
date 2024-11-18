@@ -8,9 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { VoicePreview } from "./VoicePreview";
 import { getDefaultVoice, groupVoicesByLanguage } from "@/utils/voiceUtils";
 
@@ -44,7 +43,6 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
 
       const availableVoices = window.speechSynthesis.getVoices();
       if (availableVoices.length === 0 && retryCount < 3) {
-        // Retry loading voices after a delay
         setTimeout(() => {
           setRetryCount(prev => prev + 1);
           loadVoices();
@@ -57,7 +55,6 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
         voice: voice,
       }));
       
-      // Set default voice if none is selected
       if (!currentVoice) {
         const defaultVoice = getDefaultVoice(availableVoices);
         if (defaultVoice) {
@@ -93,12 +90,6 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, [loadVoices]);
-
-  const handleRetry = () => {
-    setIsLoading(true);
-    setRetryCount(0);
-    loadVoices();
-  };
 
   if (isLoading) {
     return (
@@ -152,15 +143,6 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
       </Select>
       
       {currentVoice && <VoicePreview voice={currentVoice} />}
-      
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleRetry}
-        title="Retry loading voices"
-      >
-        <RefreshCw className="h-4 w-4" />
-      </Button>
     </div>
   );
 };
