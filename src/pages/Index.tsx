@@ -23,10 +23,17 @@ const Index = () => {
     setIsTyping(true);
     
     try {
+      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (!apiKey) {
+        throw new Error("Groq API key is not configured");
+      }
+
       const client = new Groq({
-        apiKey: import.meta.env.VITE_GROQ_API_KEY,
+        apiKey,
       });
 
+      console.log("Sending request to Groq API...");
+      
       const chatHistory = messages.map(msg => ({
         role: msg.isBot ? "assistant" as const : "user" as const,
         content: msg.text,
@@ -34,6 +41,7 @@ const Index = () => {
 
       const completion = await client.chat.completions.create({
         messages: [
+          { role: "system" as const, content: "You are a helpful AI assistant." },
           ...chatHistory,
           { role: "user" as const, content: userMessage }
         ],
@@ -42,9 +50,18 @@ const Index = () => {
         max_tokens: 1024,
       });
 
-      return completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response.";
+      console.log("Received response from Groq API:", completion);
+
+      if (!completion.choices?.[0]?.message?.content) {
+        throw new Error("Invalid response format from Groq API");
+      }
+
+      return completion.choices[0].message.content;
     } catch (error) {
-      console.error("Groq API Error:", error);
+      console.error("Detailed Groq API Error:", error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get response: ${error.message}`);
+      }
       throw new Error("Failed to get response from Groq");
     } finally {
       setIsTyping(false);
@@ -60,7 +77,7 @@ const Index = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to get response. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to get response. Please try again.",
         variant: "destructive",
       });
     }
