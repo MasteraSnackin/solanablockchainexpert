@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from 'react-i18next';
 
 interface Voice {
   name: string;
@@ -19,32 +20,41 @@ interface VoiceSettingsProps {
 
 const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
   const [voices, setVoices] = React.useState<Voice[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      const voiceOptions = availableVoices.map((voice) => ({
-        name: `${voice.name} (${voice.lang})`,
-        voice: voice,
-      }));
-      
-      // Set default voice to Google UK English Female if available
-      const defaultVoice = availableVoices.find(
-        (voice) => voice.name === "Google UK English Female" && voice.lang === "en-GB"
-      );
-      
-      if (defaultVoice && !currentVoice) {
-        console.log("Setting default voice to Google UK English Female");
-        onVoiceChange(defaultVoice);
+      setIsLoading(true);
+      try {
+        if (!('speechSynthesis' in window)) {
+          throw new Error('Browser not supported');
+        }
+
+        const availableVoices = window.speechSynthesis.getVoices();
+        const voiceOptions = availableVoices.map((voice) => ({
+          name: `${voice.name} (${voice.lang})`,
+          voice: voice,
+        }));
+        
+        // Set default voice to Google UK English Female if available
+        const defaultVoice = availableVoices.find(
+          (voice) => voice.name === "Google UK English Female" && voice.lang === "en-GB"
+        );
+        
+        if (defaultVoice && !currentVoice) {
+          onVoiceChange(defaultVoice);
+        }
+        
+        setVoices(voiceOptions);
+      } catch (error) {
+        console.error('Error loading voices:', error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setVoices(voiceOptions);
     };
 
-    // Load voices immediately if available
     loadVoices();
-
-    // Also handle dynamic voice loading
     window.speechSynthesis.onvoiceschanged = loadVoices;
 
     return () => {
@@ -52,12 +62,19 @@ const VoiceSettings = ({ onVoiceChange, currentVoice }: VoiceSettingsProps) => {
     };
   }, [onVoiceChange, currentVoice]);
 
+  if (!('speechSynthesis' in window)) {
+    return <div className="text-sm text-red-500">{t('Browser not supported')}</div>;
+  }
+
+  if (isLoading) {
+    return <div className="text-sm text-gray-500">{t('Loading voices...')}</div>;
+  }
+
   return (
     <Select
       onValueChange={(value) => {
         const selectedVoice = voices.find((v) => v.voice.name === value)?.voice;
         if (selectedVoice) {
-          console.log("Voice selected:", selectedVoice.name);
           onVoiceChange(selectedVoice);
         }
       }}
