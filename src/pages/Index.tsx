@@ -36,7 +36,7 @@ const Index = () => {
     { text: INITIAL_MESSAGE, isBot: true },
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string>("1");  // Set default to "1"
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(true);
   const { toast } = useToast();
@@ -107,8 +107,8 @@ const Index = () => {
   };
 
   const handleSendMessage = async (message: string) => {
-    // If no specific message is provided, use "1" to select the first option
-    const messageToSend = message || "1";
+    const messageToSend = selectedOption || message;
+    if (!messageToSend) return;
     
     setMessages((prev) => [...prev, { text: messageToSend, isBot: false }]);
     setSelectedOption("");
@@ -117,6 +117,7 @@ const Index = () => {
       const botResponse = await generateBotResponse(messageToSend);
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
       
+      // Automatically speak the bot's response if speech is enabled
       if (isSpeaking) {
         speak(botResponse);
       }
