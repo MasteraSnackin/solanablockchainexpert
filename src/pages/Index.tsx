@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useSpeech } from "@/hooks/useSpeech";
 import { ChatContainer } from "@/components/ChatContainer";
-import { SceneImage } from "@/components/SceneImage";
 import { Header } from "@/components/Header";
 import { GameControls } from "@/components/GameControls";
 import { useGameState } from "@/hooks/useGameState";
@@ -55,8 +54,8 @@ const Index = () => {
         onVoiceChange={setVoice}
       />
       
-      <main className="flex-1 container mx-auto px-4 py-6 flex gap-6">
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col">
+      <main className="flex-1 container mx-auto px-4 py-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col">
           <ChatContainer messages={messages} isTyping={isTyping} />
           <GameControls
             options={extractOptions(lastBotMessage || '')}
@@ -69,26 +68,20 @@ const Index = () => {
           />
         </div>
         
-        <div className="w-[512px] space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            {lastBotMessage && <SceneImage message={lastBotMessage} />}
+        {isSpeaking && (
+          <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <VoiceSettings
+              onVoiceChange={setVoice}
+              currentVoice={currentVoice}
+              speed={speed}
+              pitch={pitch}
+              volume={volume}
+              onSpeedChange={setSpeed}
+              onPitchChange={setPitch}
+              onVolumeChange={setVolume}
+            />
           </div>
-          
-          {isSpeaking && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-              <VoiceSettings
-                onVoiceChange={setVoice}
-                currentVoice={currentVoice}
-                speed={speed}
-                pitch={pitch}
-                volume={volume}
-                onSpeedChange={setSpeed}
-                onPitchChange={setPitch}
-                onVolumeChange={setVolume}
-              />
-            </div>
-          )}
-        </div>
+        )}
       </main>
     </div>
   );
