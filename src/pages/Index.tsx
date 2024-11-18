@@ -65,22 +65,24 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-2 flex flex-col">
           <Header
             isSpeaking={isSpeaking}
             toggleSpeech={toggleSpeech}
             onVoiceChange={setVoice}
             currentVoice={currentVoice}
           />
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-            onClick={copyChatlogs}
-          >
-            <Copy className="w-4 h-4" />
-            Copy Chat Logs
-          </Button>
+          <div className="mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 w-full"
+              onClick={copyChatlogs}
+            >
+              <Copy className="w-4 h-4" />
+              Copy Chat Logs
+            </Button>
+          </div>
         </div>
       </div>
       
