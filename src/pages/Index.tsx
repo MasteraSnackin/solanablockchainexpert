@@ -114,72 +114,13 @@ const extractOptions = (message: string) => {
   const options: string[] = [];
   
   for (const line of lines) {
-    const match = line.match(/
-
-Certainly! Let's add an option to copy the chat logs after the conversation. We'll implement this by adding a "Copy Chat Logs" button at the bottom of the chat container. When clicked, it will copy the entire conversation to the clipboard.
-
-<lov-code>
-To implement this feature, we need to make the following changes:
-
-1. Update the ChatContainer component to include a "Copy Chat Logs" button.
-2. Add a function to handle copying the chat logs.
-3. Use the clipboard API to copy the text.
-
-Let's modify the ChatContainer.tsx file:
-
-<lov-write file_path="src/components/ChatContainer.tsx">
-import { ChatMessage } from "./ChatMessage";
-import { TypingIndicator } from "./TypingIndicator";
-import { Button } from "./ui/button";
-import { toast } from "./ui/use-toast";
-
-interface Message {
-  text: string;
-  isBot: boolean;
-}
-
-interface ChatContainerProps {
-  messages: Message[];
-  isTyping: boolean;
-}
-
-export const ChatContainer = ({ messages, isTyping }: ChatContainerProps) => {
-  const copyChatlogs = () => {
-    const chatLogs = messages
-      .map((message) => `${message.isBot ? "Bot" : "You"}: ${message.text}`)
-      .join("\n\n");
-
-    navigator.clipboard.writeText(chatLogs).then(
-      () => {
-        toast({
-          title: "Chat logs copied!",
-          description: "The chat logs have been copied to your clipboard.",
-        });
-      },
-      (err) => {
-        console.error("Could not copy text: ", err);
-        toast({
-          title: "Error",
-          description: "Failed to copy chat logs. Please try again.",
-          variant: "destructive",
-        });
-      }
-    );
-  };
-
-  return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <ChatMessage key={index} message={message.text} isBot={message.isBot} />
-        ))}
-        {isTyping && <TypingIndicator />}
-      </div>
-      <div className="p-4 border-t">
-        <Button onClick={copyChatlogs} className="w-full">
-          Copy Chat Logs
-        </Button>
-      </div>
-    </div>
-  );
+    const match = line.match(/^\d+\.\s(.+)$/);
+    if (match) {
+      options.push(match[1].trim());
+    }
+  }
+  
+  return options;
 };
+
+export default Index;
