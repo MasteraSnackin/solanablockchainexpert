@@ -8,7 +8,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { useSpeech } from "@/hooks/useSpeech";
 
 interface Message {
   text: string;
@@ -41,7 +42,9 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const { toast } = useToast();
+  const { speak, stopSpeaking } = useSpeech();
 
   const generateBotResponse = async (userMessage: string) => {
     setIsTyping(true);
@@ -117,6 +120,11 @@ const Index = () => {
     try {
       const botResponse = await generateBotResponse(messageToSend);
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
+      
+      // Automatically speak the bot's response if speech is enabled
+      if (isSpeaking) {
+        speak(botResponse);
+      }
     } catch (error) {
       toast({
         title: "Game Master Error",
@@ -173,13 +181,32 @@ const Index = () => {
     }
   };
 
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+    }
+    setIsSpeaking(!isSpeaking);
+  };
+
   const lastBotMessage = messages[messages.length - 1]?.isBot ? messages[messages.length - 1].text : null;
   const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
   return (
     <div className="flex h-screen flex-col bg-white">
-      <header className="border-b p-4">
+      <header className="border-b p-4 flex justify-between items-center">
         <h1 className="text-xl font-semibold text-gray-800">Text Adventure Game</h1>
+        <Button
+          onClick={toggleSpeech}
+          variant="ghost"
+          size="icon"
+          className="ml-2"
+        >
+          {isSpeaking ? (
+            <Volume2 className="h-4 w-4" />
+          ) : (
+            <VolumeX className="h-4 w-4" />
+          )}
+        </Button>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
