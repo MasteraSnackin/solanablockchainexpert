@@ -3,6 +3,7 @@ import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { useToast } from "@/components/ui/use-toast";
+import { Groq } from "groq";
 
 interface Message {
   text: string;
@@ -19,27 +20,41 @@ const Index = () => {
   const { toast } = useToast();
 
   const generateBotResponse = async (userMessage: string) => {
-    // Simulate bot response - replace with actual API call
     setIsTyping(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsTyping(false);
     
-    const botResponses = [
-      "I understand your question. Let me help you with that.",
-      "That's an interesting point. Here's what I think...",
-      "I'd be happy to assist you with that.",
-      "Let me provide some information about that.",
-    ];
-    
-    return botResponses[Math.floor(Math.random() * botResponses.length)];
+    try {
+      const groq = new Groq({
+        apiKey: import.meta.env.VITE_GROQ_API_KEY,
+      });
+
+      const chatHistory = messages.map(msg => ({
+        role: msg.isBot ? "assistant" : "user",
+        content: msg.text,
+      }));
+
+      const completion = await groq.chat.completions.create({
+        messages: [
+          ...chatHistory,
+          { role: "user", content: userMessage }
+        ],
+        model: "mixtral-8x7b-32768",
+        temperature: 0.7,
+        max_tokens: 1024,
+      });
+
+      return completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response.";
+    } catch (error) {
+      console.error("Groq API Error:", error);
+      throw new Error("Failed to get response from Groq");
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleSendMessage = async (message: string) => {
-    // Add user message
     setMessages((prev) => [...prev, { text: message, isBot: false }]);
 
     try {
-      // Get bot response
       const botResponse = await generateBotResponse(message);
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
     } catch (error) {
