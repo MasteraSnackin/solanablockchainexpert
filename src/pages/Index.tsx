@@ -1,16 +1,11 @@
 import { useState } from "react";
-import { ChatMessage } from "@/components/ChatMessage";
-import { ChatInput } from "@/components/ChatInput";
-import { TypingIndicator } from "@/components/TypingIndicator";
 import { useToast } from "@/components/ui/use-toast";
 import { Groq } from "groq-sdk";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useSpeech } from "@/hooks/useSpeech";
 import VoiceSettings from "@/components/VoiceSettings";
+import { GameInterface } from "@/components/GameInterface";
 
 interface Message {
   text: string;
@@ -41,7 +36,6 @@ const Index = () => {
     { text: INITIAL_MESSAGE, isBot: true },
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { toast } = useToast();
@@ -97,32 +91,15 @@ const Index = () => {
     }
   };
 
-  const extractOptions = (message: string) => {
-    const lines = message.split('\n');
-    const options: string[] = [];
-    
-    for (const line of lines) {
-      const match = line.match(/^\d+\.\s(.+)$/);
-      if (match) {
-        options.push(match[1].trim());
-      }
-    }
-    
-    return options;
-  };
-
   const handleSendMessage = async (message: string) => {
-    const messageToSend = selectedOption || message;
-    if (!messageToSend) return;
+    if (!message.trim()) return;
     
-    setMessages((prev) => [...prev, { text: messageToSend, isBot: false }]);
-    setSelectedOption("");
+    setMessages((prev) => [...prev, { text: message, isBot: false }]);
 
     try {
-      const botResponse = await generateBotResponse(messageToSend);
+      const botResponse = await generateBotResponse(message);
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
       
-      // Automatically speak the bot's response if speech is enabled
       if (isSpeaking) {
         speak(botResponse);
       }
@@ -189,13 +166,12 @@ const Index = () => {
     setIsSpeaking(!isSpeaking);
   };
 
-  const lastBotMessage = messages[messages.length - 1]?.isBot ? messages[messages.length - 1].text : null;
-  const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
-
   return (
     <div className="flex h-screen flex-col bg-white">
       <header className="border-b p-4 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-gray-800">Text Adventure Game</h1>
+        <h1 className="text-xl font-semibold text-gray-800">
+          Text Adventure Game
+        </h1>
         <div className="flex items-center gap-4">
           {isSpeaking && (
             <VoiceSettings onVoiceChange={setVoice} currentVoice={currentVoice} />
@@ -215,69 +191,13 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            message={message.text}
-            isBot={message.isBot}
-          />
-        ))}
-        {isTyping && <TypingIndicator />}
-      </div>
-
-      <div className="border-t p-4 space-y-4">
-        <Tabs defaultValue="choices" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="choices">Quick Choices</TabsTrigger>
-            <TabsTrigger value="custom">Custom Response</TabsTrigger>
-            <TabsTrigger value="voice">Voice Input</TabsTrigger>
-          </TabsList>
-          <TabsContent value="choices">
-            {options.length > 0 && (
-              <div className="space-y-4">
-                <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
-                  {options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option} id={`option-${index}`} />
-                      <Label htmlFor={`option-${index}`}>{option}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                <Button 
-                  onClick={() => handleSendMessage("")} 
-                  disabled={!selectedOption || isTyping}
-                  className="w-full"
-                >
-                  Choose Action
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-          <TabsContent value="custom">
-            <ChatInput onSend={handleSendMessage} disabled={isTyping} />
-          </TabsContent>
-          <TabsContent value="voice" className="flex justify-center">
-            <Button
-              onClick={toggleVoiceRecognition}
-              variant={isListening ? "destructive" : "default"}
-              className="w-full flex items-center gap-2"
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="h-4 w-4" />
-                  Stop Recording
-                </>
-              ) : (
-                <>
-                  <Mic className="h-4 w-4" />
-                  Start Recording
-                </>
-              )}
-            </Button>
-          </TabsContent>
-        </Tabs>
-      </div>
+      <GameInterface
+        messages={messages}
+        isTyping={isTyping}
+        onSendMessage={handleSendMessage}
+        isListening={isListening}
+        toggleVoiceRecognition={toggleVoiceRecognition}
+      />
     </div>
   );
 };
