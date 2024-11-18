@@ -16,9 +16,15 @@ export const SceneImage = ({ message }: SceneImageProps) => {
 
   const checkComfyUIConnection = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8188/system_stats");
+      const response = await fetch("http://127.0.0.1:8188/system_stats", {
+        mode: 'cors',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error("ComfyUI connection check failed:", error);
       return false;
     }
   };
@@ -32,15 +38,22 @@ export const SceneImage = ({ message }: SceneImageProps) => {
       const isComfyUIRunning = await checkComfyUIConnection();
       if (!isComfyUIRunning) {
         setIsComfyUIError(true);
-        throw new Error("ComfyUI is not running. Please start ComfyUI locally on port 8188.");
+        throw new Error(
+          "Cannot connect to ComfyUI. Please ensure:\n" +
+          "1. ComfyUI is installed and running on port 8188\n" +
+          "2. CORS is enabled in ComfyUI\n" +
+          "3. You're accessing this page via http://localhost instead of other domains"
+        );
       }
 
       console.log("Generating image for prompt:", message);
       
       const response = await fetch("http://127.0.0.1:8188/prompt", {
         method: "POST",
+        mode: 'cors',
         headers: {
           "Content-Type": "application/json",
+          'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
           prompt: {
@@ -99,14 +112,21 @@ export const SceneImage = ({ message }: SceneImageProps) => {
       });
 
       if (!response.ok) {
+        console.error("ComfyUI API error:", response.status, response.statusText);
         throw new Error(`ComfyUI API request failed: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log("ComfyUI response:", data);
       
       if (data.prompt_id) {
         const checkResult = async () => {
-          const historyResponse = await fetch(`http://127.0.0.1:8188/history/${data.prompt_id}`);
+          const historyResponse = await fetch(`http://127.0.0.1:8188/history/${data.prompt_id}`, {
+            mode: 'cors',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+            }
+          });
           const historyData = await historyResponse.json();
           
           if (historyData[data.prompt_id]?.outputs?.[8]?.images?.[0]) {
@@ -142,6 +162,8 @@ export const SceneImage = ({ message }: SceneImageProps) => {
               <li>Install ComfyUI locally</li>
               <li>Start ComfyUI server on port 8188</li>
               <li>Ensure the SD XL model is available</li>
+              <li>Access this page via http://localhost</li>
+              <li>Enable CORS in ComfyUI</li>
             </ol>
           </AlertDescription>
         </Alert>
