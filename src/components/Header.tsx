@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Volume2, VolumeX } from "lucide-react";
-import VoiceSettings from "./VoiceSettings";
+import { VoiceSettings } from "./VoiceSettings";
 import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
