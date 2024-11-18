@@ -47,16 +47,23 @@ export const GameInterface = ({
   const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {messages.map((message, index) => (
-        <div key={index} className="space-y-4">
-          <ChatMessage message={message.text} isBot={message.isBot} />
-          {message.isBot && <GeneratedImage prompt={message.text} />}
+    <div className="flex-1 overflow-hidden p-4">
+      <div className="flex h-full gap-4">
+        <div className="flex-1 overflow-y-auto space-y-4">
+          {messages.map((message, index) => (
+            <ChatMessage key={index} message={message.text} isBot={message.isBot} />
+          ))}
+          {isTyping && <TypingIndicator />}
         </div>
-      ))}
-      {isTyping && <TypingIndicator />}
+        
+        <div className="w-1/3 overflow-y-auto space-y-4">
+          {messages.map((message, index) => (
+            message.isBot && <GeneratedImage key={index} prompt={message.text} />
+          ))}
+        </div>
+      </div>
 
-      <div className="border-t p-4 space-y-4">
+      <div className="border-t mt-4 p-4 space-y-4">
         <Tabs defaultValue="choices" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="choices">Quick Choices</TabsTrigger>
