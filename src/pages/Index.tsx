@@ -28,14 +28,14 @@ const Index = () => {
       });
 
       const chatHistory = messages.map(msg => ({
-        role: msg.isBot ? "assistant" : "user",
+        role: msg.isBot ? "assistant" as const : "user" as const,
         content: msg.text,
       }));
 
       const completion = await client.chat.completions.create({
         messages: [
           ...chatHistory,
-          { role: "user", content: userMessage }
+          { role: "user" as const, content: userMessage }
         ],
         model: "mixtral-8x7b-32768",
         temperature: 0.7,
