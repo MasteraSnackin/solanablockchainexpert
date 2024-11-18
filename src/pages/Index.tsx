@@ -65,24 +65,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-2 flex flex-col">
+        <div className="container mx-auto px-4 py-2">
           <Header
             isSpeaking={isSpeaking}
             toggleSpeech={toggleSpeech}
             onVoiceChange={setVoice}
             currentVoice={currentVoice}
           />
-          <div className="mt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 w-full"
-              onClick={copyChatlogs}
-            >
-              <Copy className="w-4 h-4" />
-              Copy Chat Logs
-            </Button>
-          </div>
         </div>
       </div>
       
@@ -92,15 +81,28 @@ const Index = () => {
             <ChatContainer messages={messages} isTyping={isTyping} />
           </div>
           
-          <GameControls
-            options={options}
-            selectedOption={selectedOption}
-            setSelectedOption={setSelectedOption}
-            handleSendMessage={handleSendMessage}
-            isTyping={isTyping}
-            isListening={isListening}
-            toggleVoiceRecognition={toggleVoiceRecognition}
-          />
+          <div className="border-t p-4 flex items-center gap-4">
+            <div className="flex-1">
+              <GameControls
+                options={options}
+                selectedOption={selectedOption}
+                setSelectedOption={setSelectedOption}
+                handleSendMessage={handleSendMessage}
+                isTyping={isTyping}
+                isListening={isListening}
+                toggleVoiceRecognition={toggleVoiceRecognition}
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 shrink-0"
+              onClick={copyChatlogs}
+            >
+              <Copy className="w-4 h-4" />
+              Copy Chat Logs
+            </Button>
+          </div>
         </div>
         
         <div className="w-[512px] bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
