@@ -14,6 +14,7 @@ const languages = [
   { code: 'fr', name: 'Français' },
   { code: 'de', name: 'Deutsch' },
   { code: 'it', name: 'Italiano' },
+  { code: 'zh', name: '中文' },
 ];
 
 export const LanguageSelector = () => {

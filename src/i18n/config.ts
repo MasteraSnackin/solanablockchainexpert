@@ -137,6 +137,33 @@ const resources = {
       'Type a message...': 'Scrivi un messaggio...'
     },
   },
+  zh: {
+    translation: {
+      'Copy Chat Logs': '复制聊天记录',
+      'Restart Chat': '重新开始聊天',
+      'Export Chat': '导出聊天',
+      'Dark Mode': '深色模式',
+      'Language': '语言',
+      'Chat Restarted': '聊天已重新开始',
+      'Chat has been reset': '聊天已重置到开始状态',
+      'Chat logs copied': '聊天记录已复制！',
+      'Chat history copied': '聊天历史已复制到剪贴板',
+      'Failed to copy': '复制失败',
+      'Could not copy logs': '无法复制聊天记录',
+      'Chat exported': '聊天已导出！',
+      'Chat history downloaded': '聊天历史已下载为文本文件',
+      'Game Master': '游戏主持人',
+      'Player': '玩家',
+      'Interactive Adventure Quest': '互动冒险任务',
+      'Quick Choices': '快速选择',
+      'Custom Response': '自定义回复',
+      'Voice Input': '语音输入',
+      'Choose Action': '选择动作',
+      'Start Recording': '开始录音',
+      'Stop Recording': '停止录音',
+      'Type a message...': '输入消息...'
+    },
+  },
 };
 
 i18n
