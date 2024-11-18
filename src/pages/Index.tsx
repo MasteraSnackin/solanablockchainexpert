@@ -1,16 +1,11 @@
 import { useState } from "react";
-import { ChatInput } from "@/components/ChatInput";
 import { useToast } from "@/components/ui/use-toast";
 import { Groq } from "groq-sdk";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useSpeech } from "@/hooks/useSpeech";
-import VoiceSettings from "@/components/VoiceSettings";
 import { ChatContainer } from "@/components/ChatContainer";
 import { SceneImage } from "@/components/SceneImage";
+import { Header } from "@/components/Header";
+import { GameControls } from "@/components/GameControls";
 
 interface Message {
   text: string;
@@ -43,7 +38,7 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(true); // Changed to true by default
+  const [isSpeaking, setIsSpeaking] = useState(true);
   const { toast } = useToast();
   const { speak, stopSpeaking, setVoice, currentVoice } = useSpeech();
 
@@ -193,91 +188,37 @@ const Index = () => {
   const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
   return (
-    <div className="flex h-screen flex-col bg-white">
-      <header className="border-b p-4 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-gray-800">Text Adventure Game</h1>
-        <div className="flex items-center gap-4">
-          {isSpeaking && (
-            <VoiceSettings onVoiceChange={setVoice} currentVoice={currentVoice} />
-          )}
-          <Button
-            onClick={toggleSpeech}
-            variant="ghost"
-            size="icon"
-            className="ml-2"
-          >
-            {isSpeaking ? (
-              <Volume2 className="h-4 w-4" />
-            ) : (
-              <VolumeX className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 flex flex-col">
-          <ChatContainer messages={messages} isTyping={isTyping} />
-          <div className="border-t p-4 space-y-4">
-            <Tabs defaultValue="choices" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="choices">Quick Choices</TabsTrigger>
-                <TabsTrigger value="custom">Custom Response</TabsTrigger>
-                <TabsTrigger value="voice">Voice Input</TabsTrigger>
-              </TabsList>
-              <TabsContent value="choices">
-                {options.length > 0 && (
-                  <div className="space-y-4">
-                    <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
-                      {options.map((option, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <RadioGroupItem value={option} id={`option-${index}`} />
-                          <Label htmlFor={`option-${index}`}>{option}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                    <Button 
-                      onClick={() => handleSendMessage("")} 
-                      disabled={!selectedOption || isTyping}
-                      className="w-full"
-                    >
-                      Choose Action
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-              <TabsContent value="custom">
-                <ChatInput onSend={handleSendMessage} disabled={isTyping} />
-              </TabsContent>
-              <TabsContent value="voice" className="flex justify-center">
-                <Button
-                  onClick={toggleVoiceRecognition}
-                  variant={isListening ? "destructive" : "default"}
-                  className="w-full flex items-center gap-2"
-                >
-                  {isListening ? (
-                    <>
-                      <MicOff className="h-4 w-4" />
-                      Stop Recording
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="h-4 w-4" />
-                      Start Recording
-                    </>
-                  )}
-                </Button>
-              </TabsContent>
-            </Tabs>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Header
+        isSpeaking={isSpeaking}
+        toggleSpeech={toggleSpeech}
+        onVoiceChange={setVoice}
+        currentVoice={currentVoice}
+      />
+      
+      <main className="flex-1 container mx-auto px-4 py-6 flex gap-6">
+        <div className="flex-1 bg-white rounded-lg shadow-lg flex flex-col">
+          <div className="flex-1 overflow-hidden">
+            <ChatContainer messages={messages} isTyping={isTyping} />
           </div>
+          
+          <GameControls
+            options={options}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
+            handleSendMessage={handleSendMessage}
+            isTyping={isTyping}
+            isListening={isListening}
+            toggleVoiceRecognition={toggleVoiceRecognition}
+          />
         </div>
-        <div className="w-[512px] border-l p-4 overflow-y-auto">
+        
+        <div className="w-[512px] bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
           {lastBotMessage && <SceneImage message={lastBotMessage} />}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
 export default Index;
-
