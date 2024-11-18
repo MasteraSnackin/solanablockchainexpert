@@ -3,7 +3,7 @@ import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { useToast } from "@/components/ui/use-toast";
-import { Groq } from "groq";
+import Groq from "groq";
 
 interface Message {
   text: string;
