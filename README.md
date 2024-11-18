@@ -1,4 +1,3 @@
-Here’s a professional and tailored README for your project based on the "EROS" template:
 
 ---
 
