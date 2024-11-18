@@ -1,29 +1,30 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Groq } from "groq-sdk";
 import { useSpeech } from "@/hooks/useSpeech";
 import { ChatContainer } from "@/components/ChatContainer";
 import { SceneImage } from "@/components/SceneImage";
 import { Header } from "@/components/Header";
 import { GameControls } from "@/components/GameControls";
-import { useGameLogic } from "@/hooks/useGameLogic";
 import { useGameState } from "@/hooks/useGameState";
 import { useVoiceControl } from "@/hooks/useVoiceControl";
+import { useMessageHandler } from "@/hooks/useMessageHandler";
 
 const Index = () => {
   const { toast } = useToast();
   const { speak, stopSpeaking, setVoice, currentVoice } = useSpeech();
   const { messages, setMessages, isTyping, setIsTyping } = useGameState();
   const [isSpeaking, setIsSpeaking] = useState(true);
-  const { selectedOption, setSelectedOption, handleSendMessage } = useGameLogic({ 
-    setMessages, 
-    setIsTyping, 
-    speak, 
-    toast,
-    messages,
-    isSpeaking 
+  
+  const { selectedOption, setSelectedOption, handleSendMessage } = useMessageHandler(
+    isSpeaking,
+    speak,
+    setMessages
+  );
+  
+  const { isListening, toggleVoiceRecognition } = useVoiceControl({ 
+    handleSendMessage, 
+    toast 
   });
-  const { isListening, toggleVoiceRecognition } = useVoiceControl({ handleSendMessage, toast });
 
   const toggleSpeech = () => {
     if (isSpeaking) {
@@ -32,7 +33,10 @@ const Index = () => {
     setIsSpeaking(!isSpeaking);
   };
 
-  const lastBotMessage = messages[messages.length - 1]?.isBot ? messages[messages.length - 1].text : null;
+  const lastBotMessage = messages[messages.length - 1]?.isBot 
+    ? messages[messages.length - 1].text 
+    : null;
+    
   const options = lastBotMessage ? extractOptions(lastBotMessage) : [];
 
   return (
