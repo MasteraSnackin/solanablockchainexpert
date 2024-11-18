@@ -9,7 +9,7 @@ import { useGameState } from "@/hooks/useGameState";
 import { useVoiceControl } from "@/hooks/useVoiceControl";
 import { useMessageHandler } from "@/hooks/useMessageHandler";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, RefreshCw } from "lucide-react";
 
 const Index = () => {
   const { toast } = useToast();
@@ -56,6 +56,14 @@ const Index = () => {
     });
   };
 
+  const restartChat = () => {
+    setMessages([{ text: messages[0].text, isBot: true }]);
+    toast({
+      title: "Chat Restarted",
+      description: "The chat has been reset to the beginning.",
+    });
+  };
+
   const lastBotMessage = messages[messages.length - 1]?.isBot 
     ? messages[messages.length - 1].text 
     : null;
@@ -93,15 +101,26 @@ const Index = () => {
                 toggleVoiceRecognition={toggleVoiceRecognition}
               />
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 shrink-0"
-              onClick={copyChatlogs}
-            >
-              <Copy className="w-4 h-4" />
-              Copy Chat Logs
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 shrink-0"
+                onClick={copyChatlogs}
+              >
+                <Copy className="w-4 h-4" />
+                Copy Chat Logs
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 shrink-0"
+                onClick={restartChat}
+              >
+                <RefreshCw className="w-4 h-4" />
+                Restart Chat
+              </Button>
+            </div>
           </div>
         </div>
         
