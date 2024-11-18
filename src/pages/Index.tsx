@@ -10,6 +10,8 @@ import { useMessageHandler } from "@/hooks/useMessageHandler";
 import { VoiceSettings } from "@/components/VoiceSettings";
 import { useTranslation } from 'react-i18next';
 import { GameHeader } from "./GameHeader";
+import { ChatOptions } from "@/components/ChatOptions";
+import { ThemeProvider } from "next-themes";
 
 const Index = () => {
   const { toast } = useToast();
@@ -41,49 +43,61 @@ const Index = () => {
     setIsSpeaking(!isSpeaking);
   };
 
+  const handleRestart = () => {
+    setMessages([{ text: t('Welcome! I am your Solana blockchain expert assistant. How can I help you today?'), isBot: true }]);
+    setSelectedOption("");
+    toast({
+      title: t('Chat Restarted'),
+      description: t('The conversation has been reset'),
+    });
+  };
+
   const lastBotMessage = messages[messages.length - 1]?.isBot 
     ? messages[messages.length - 1].text 
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      <GameHeader 
-        isSpeaking={isSpeaking}
-        toggleSpeech={toggleSpeech}
-        currentVoice={currentVoice}
-        onVoiceChange={setVoice}
-      />
-      
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col">
-          <ChatContainer messages={messages} isTyping={isTyping} />
-          <GameControls
-            options={extractOptions(lastBotMessage || '')}
-            selectedOption={selectedOption}
-            setSelectedOption={setSelectedOption}
-            handleSendMessage={handleSendMessage}
-            isTyping={isTyping}
-            isListening={isListening}
-            toggleVoiceRecognition={toggleVoiceRecognition}
-          />
-        </div>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+        <GameHeader 
+          isSpeaking={isSpeaking}
+          toggleSpeech={toggleSpeech}
+          currentVoice={currentVoice}
+          onVoiceChange={setVoice}
+        />
         
-        {isSpeaking && (
-          <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-            <VoiceSettings
-              onVoiceChange={setVoice}
-              currentVoice={currentVoice}
-              speed={speed}
-              pitch={pitch}
-              volume={volume}
-              onSpeedChange={setSpeed}
-              onPitchChange={setPitch}
-              onVolumeChange={setVolume}
+        <main className="flex-1 container mx-auto px-4 py-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col">
+            <ChatOptions messages={messages} onRestart={handleRestart} />
+            <ChatContainer messages={messages} isTyping={isTyping} />
+            <GameControls
+              options={extractOptions(lastBotMessage || '')}
+              selectedOption={selectedOption}
+              setSelectedOption={setSelectedOption}
+              handleSendMessage={handleSendMessage}
+              isTyping={isTyping}
+              isListening={isListening}
+              toggleVoiceRecognition={toggleVoiceRecognition}
             />
           </div>
-        )}
-      </main>
-    </div>
+          
+          {isSpeaking && (
+            <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+              <VoiceSettings
+                onVoiceChange={setVoice}
+                currentVoice={currentVoice}
+                speed={speed}
+                pitch={pitch}
+                volume={volume}
+                onSpeedChange={setSpeed}
+                onPitchChange={setPitch}
+                onVolumeChange={setVolume}
+              />
+            </div>
+          )}
+        </main>
+      </div>
+    </ThemeProvider>
   );
 };
 
