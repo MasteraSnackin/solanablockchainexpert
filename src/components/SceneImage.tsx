@@ -17,43 +17,92 @@ export const SceneImage = ({ message }: SceneImageProps) => {
     console.log("Generating image for prompt:", message);
     
     try {
-      const apiKey = import.meta.env.VITE_NEBIUS_API_KEY;
-      if (!apiKey) {
-        throw new Error("API key is not configured");
-      }
-
-      const response = await fetch("https://api.nebius.ai/v1/images/generation", {
+      // ComfyUI runs locally by default on port 8188
+      const response = await fetch("http://127.0.0.1:8188/prompt", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
-          "Accept": "application/json",
-          "Origin": window.location.origin
         },
         body: JSON.stringify({
-          model: "stable-diffusion-v2",
-          prompt: `Fantasy game scene: ${message}`,
-          n: 1,
-          size: "512x512",
-          response_format: "url"
+          prompt: {
+            "3": {
+              "inputs": {
+                "text": `Fantasy game scene: ${message}`,
+                "clip": ["4", 0]
+              },
+              "class_type": "CLIPTextEncode"
+            },
+            "4": {
+              "inputs": {
+                "ckpt_name": "sd_xl_base_1.0.safetensors"
+              },
+              "class_type": "CheckpointLoaderSimple"
+            },
+            "5": {
+              "inputs": {
+                "seed": Math.floor(Math.random() * 1000000),
+                "steps": 20,
+                "cfg": 8,
+                "sampler_name": "euler",
+                "scheduler": "normal",
+                "denoise": 1,
+                "model": ["4", 0],
+                "positive": ["3", 0],
+                "negative": ["6", 0],
+                "latent_image": ["7", 0]
+              },
+              "class_type": "KSampler"
+            },
+            "6": {
+              "inputs": {
+                "text": "ugly, bad quality, blurry",
+                "clip": ["4", 0]
+              },
+              "class_type": "CLIPTextEncode"
+            },
+            "7": {
+              "inputs": {
+                "width": 512,
+                "height": 512,
+                "batch_size": 1
+              },
+              "class_type": "EmptyLatentImage"
+            },
+            "8": {
+              "inputs": {
+                "samples": ["5", 0],
+                "vae": ["4", 2]
+              },
+              "class_type": "VAEDecode"
+            }
+          }
         }),
       });
 
-      console.log("API Response status:", response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API Error response:", errorText);
-        throw new Error(`API request failed: ${response.status} ${errorText}`);
+        throw new Error(`ComfyUI API request failed: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("API Response data:", data);
-
-      if (data.data?.[0]?.url) {
-        setImageUrl(data.data[0].url);
-      } else {
-        throw new Error("Invalid response format from API");
+      
+      // ComfyUI returns a prompt ID that we need to use to get the actual image
+      if (data.prompt_id) {
+        // Poll for the image result
+        const checkResult = async () => {
+          const historyResponse = await fetch(`http://127.0.0.1:8188/history/${data.prompt_id}`);
+          const historyData = await historyResponse.json();
+          
+          if (historyData[data.prompt_id]?.outputs?.[8]?.images?.[0]) {
+            const imageName = historyData[data.prompt_id].outputs[8].images[0].filename;
+            setImageUrl(`http://127.0.0.1:8188/view?filename=${imageName}`);
+            setIsLoading(false);
+          } else {
+            // Check again in 1 second
+            setTimeout(checkResult, 1000);
+          }
+        };
+        
+        checkResult();
       }
     } catch (error) {
       console.error("Image generation error:", error);
@@ -64,7 +113,6 @@ export const SceneImage = ({ message }: SceneImageProps) => {
           : "Failed to generate image. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
