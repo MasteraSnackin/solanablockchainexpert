@@ -18,7 +18,9 @@ const Index = () => {
   const { selectedOption, setSelectedOption, handleSendMessage } = useMessageHandler(
     isSpeaking,
     speak,
-    setMessages
+    setMessages,
+    messages,
+    setIsTyping
   );
   
   const { isListening, toggleVoiceRecognition } = useVoiceControl({ 

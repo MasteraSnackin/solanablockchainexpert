@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-
-interface Message {
-  text: string;
-  isBot: boolean;
-}
+import { generateBotResponse } from "@/utils/botResponseGenerator";
+import { Message } from "@/types/chat";
 
 export const useMessageHandler = (
   isSpeaking: boolean,
   speak: (text: string) => void,
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+  messages: Message[],
+  setIsTyping: (isTyping: boolean) => void
 ) => {
   const [selectedOption, setSelectedOption] = useState("");
 
@@ -22,7 +21,7 @@ export const useMessageHandler = (
     setSelectedOption("");
 
     try {
-      const botResponse = await generateBotResponse(messageToSend);
+      const botResponse = await generateBotResponse(messageToSend, messages, setIsTyping);
       console.log("Bot response received:", botResponse);
       
       setMessages((prev) => [...prev, { text: botResponse, isBot: true }]);
