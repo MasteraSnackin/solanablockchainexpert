@@ -17,12 +17,18 @@ export const SceneImage = ({ message }: SceneImageProps) => {
     console.log("Generating image for prompt:", message);
     
     try {
+      const apiKey = import.meta.env.VITE_NEBIUS_API_KEY;
+      if (!apiKey) {
+        throw new Error("API key is not configured");
+      }
+
       const response = await fetch("https://api.nebius.ai/v1/images/generation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_NEBIUS_API_KEY}`,
-          "Accept": "application/json"
+          "Authorization": `Bearer ${apiKey}`,
+          "Accept": "application/json",
+          "Origin": window.location.origin
         },
         body: JSON.stringify({
           model: "stable-diffusion-v2",
@@ -36,9 +42,9 @@ export const SceneImage = ({ message }: SceneImageProps) => {
       console.log("API Response status:", response.status);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("API Error response:", errorData);
-        throw new Error(errorData.error?.message || "Failed to generate image");
+        const errorText = await response.text();
+        console.error("API Error response:", errorText);
+        throw new Error(`API request failed: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
@@ -52,8 +58,10 @@ export const SceneImage = ({ message }: SceneImageProps) => {
     } catch (error) {
       console.error("Image generation error:", error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate image. Please try again.",
+        title: "Error Generating Image",
+        description: error instanceof Error 
+          ? `Failed to generate image: ${error.message}` 
+          : "Failed to generate image. Please try again.",
         variant: "destructive",
       });
     } finally {
