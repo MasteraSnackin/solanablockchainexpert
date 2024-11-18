@@ -57,7 +57,7 @@ const Index = () => {
     : null;
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         <GameHeader 
           isSpeaking={isSpeaking}
